@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    "noEmit": true,
+    // Typecheck against the package SOURCE, so `pnpm -r typecheck` does not need
+    // `pnpm -r build` to have run first. Vite still resolves the real package
+    // through the workspace link (its `exports` → dist), which is the same code.
+    "paths": {
+      "react-lane-timeline": ["../../packages/timeline/src/index.ts"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

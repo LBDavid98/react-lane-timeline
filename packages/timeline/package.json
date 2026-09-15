@@ -1,0 +1,74 @@
+{
+  "name": "react-lane-timeline",
+  "version": "0.1.0",
+  "description": "A React lanes + sequence timeline: items positioned along a continuous or bucketed axis, inside lanes. Drag and keyboard moves, pure testable layout model, themeable by CSS custom properties.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LBDavid98/react-lane-timeline.git",
+    "directory": "packages/timeline"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./model": {
+      "types": "./dist/model.d.ts",
+      "import": "./dist/model.js"
+    },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "import": "./dist/registry.js"
+    },
+    "./timeline.css": "./dist/timeline.css",
+    "./adapters/*": "./dist/adapters/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^22.20.2",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "jsdom": "^27.4.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tsup": "^8.5.1",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.11"
+  },
+  "keywords": [
+    "react",
+    "timeline",
+    "lanes",
+    "swimlane",
+    "roadmap",
+    "gantt",
+    "sequence",
+    "drag-and-drop",
+    "accessibility",
+    "typescript"
+  ],
+  "homepage": "https://github.com/LBDavid98/react-lane-timeline#readme",
+  "bugs": {
+    "url": "https://github.com/LBDavid98/react-lane-timeline/issues"
+  }
+}

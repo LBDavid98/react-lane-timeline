@@ -1,0 +1,11 @@
+node_modules/
+dist/
+dist-tarball/
+*.tgz
+.DS_Store
+*.log
+.vite/
+coverage/
+.env
+.env.*
+!.env.example

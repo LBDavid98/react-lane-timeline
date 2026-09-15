@@ -1,0 +1,16 @@
+{
+  "name": "react-lane-timeline-workspace",
+  "private": true,
+  "type": "module",
+  "description": "Workspace root for react-lane-timeline.",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "dev": "pnpm --filter react-lane-timeline-demo dev"
+  }
+}

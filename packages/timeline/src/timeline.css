@@ -1,0 +1,431 @@
+/* ============================================================================
+ * timeline.css — the frame, and the roles it paints with.
+ *
+ * TWO LAYERS, AND THE REASON THERE ARE TWO (the pattern is
+ * a sibling package's studio.css, for the same reasons):
+ *
+ *   --tl-*    the public hook. Set by an adapter (adapters/<host>.css) or by a
+ *             host restyling the timeline. NEVER declared in this file — a
+ *             declaration here, on the element, would beat the host's inherited
+ *             value from :root no matter how specific the host was.
+ *   --_tl-*   the resolved role: `var(--tl-x, <neutral literal>)`, declared
+ *             exactly once, on :where(.tl-root). Every painting rule below
+ *             reads one of these and nothing else.
+ *
+ * No host token name appears in a fallback chain here. the drafting app says --panel,
+ * the prose engine says --dm-bg-raised; a chain naming one resolves in one app and silently
+ * falls through in the other. The mapping lives in adapters/, one file per host,
+ * custom properties only. A host that imports no adapter gets the literals
+ * below: a plain, legible, dark timeline rather than a broken one.
+ *
+ * THE POSITIONING RULE, and why it is not VS's rule
+ * -------------------------------------------------
+ * VS's studio.css declares NO position at all, because a gallery is flow
+ * content. A timeline is not: a card's whole job is to sit at an x along a bed,
+ * which is `position: absolute; left: <fraction>`. So the rule here is
+ * SCOPING, not abstinence — every positioned thing is an INTERNAL of .tl-root:
+ *
+ *   1. every selector in this file is scoped to a .tl-* class, so no rule can
+ *      reach the host's page;
+ *   2. `position` is only relative | absolute | sticky — never `fixed`, which
+ *      would escape the host's box;
+ *   3. no viewport unit (vh/vw/…) anywhere — the host owns the box's size;
+ *   4. z-index stays single-digit and local, inside a .tl-root stacking context.
+ *
+ * `contract.test.ts` enforces all four. Inline geometry in the component, stated
+ * so nobody mistakes it for a loophole: the bed's `width` (the packed content
+ * width), each card's `left` (its column fraction), each band's `left`/`width`
+ * (its span), and ONE `transform` on the card being dragged, cleared on drop or
+ * cancel. Every one of those is a number only the layout knows; none is a
+ * position, a layer or an offset that escapes the root.
+ * ========================================================================== */
+
+:where(.tl-root) {
+  /* — surfaces — */
+  --_tl-bg: var(--tl-bg, #15171b);
+  --_tl-bg-lane: var(--tl-bg-lane, #1a1d22);
+  --_tl-bg-raised: var(--tl-bg-raised, #23262d);
+
+  /* — ink & lines — */
+  --_tl-text: var(--tl-text, #e6e4df);
+  --_tl-text-muted: var(--tl-text-muted, #a3a6ad);
+  --_tl-line: var(--tl-line, #2b2f36);
+
+  /* — accent & status.
+       accent — selection and the tension line;
+       good   — a FRAME (intentional cross-lane coincidence) and the curve's calm baseline;
+       warn   — a COLLISION (two items piled in one lane: a defect);
+       danger — the tension curve's peak, the climax the curve exists to show. — */
+  --_tl-accent: var(--tl-accent, #6ea0f0);
+  --_tl-accent-soft: var(--tl-accent-soft, #1f2a3a);
+  --_tl-good: var(--tl-good, #46b381);
+  --_tl-warn: var(--tl-warn, #e2a13c);
+  --_tl-danger: var(--tl-danger, #e5484d);
+
+  /* — shape, space, type — */
+  --_tl-radius: var(--tl-radius, 6px);
+  --_tl-gap: var(--tl-gap, 10px);
+  --_tl-font-ui: var(--tl-font-ui, system-ui, sans-serif);
+  --_tl-font-mono: var(--tl-font-mono, ui-monospace, monospace);
+  --_tl-text-size: var(--tl-text-size, 13px);
+
+  /* — geometry the layout also knows (computeLayout: laneHeight, gutter) — */
+  --_tl-lane-height: var(--tl-lane-height, 92px);
+  --_tl-gutter: var(--tl-gutter, 176px);
+}
+
+/* The one non-role private property: the card's width, read in two places. */
+.tl-root {
+  --_tl-card-w: 138px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--_tl-gap);
+  min-width: 0;
+  background: var(--_tl-bg);
+  color: var(--_tl-text);
+  font-family: var(--_tl-font-ui);
+  font-size: var(--_tl-text-size);
+  line-height: 1.4;
+}
+
+.tl-root *,
+.tl-root *::before,
+.tl-root *::after {
+  box-sizing: border-box;
+}
+
+/* — the bar ------------------------------------------------------------- */
+
+.tl-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--_tl-gap);
+  padding: 0 var(--_tl-gap);
+}
+
+.tl-bar-title {
+  margin: 0;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.tl-bar-sub {
+  color: var(--_tl-text-muted);
+  font-weight: 400;
+}
+
+.tl-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--_tl-line);
+  border-radius: var(--_tl-radius);
+  background: var(--_tl-bg-raised);
+  color: var(--_tl-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tl-btn:hover:not(:disabled) {
+  border-color: var(--_tl-accent);
+}
+
+.tl-btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* — the scroller and the bed ------------------------------------------- */
+
+.tl-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Content is LEFT-PACKED: a four-item timeline sits at the left edge rather
+     than stretching, which is what the layout's minContent width is for. */
+  scrollbar-width: thin;
+}
+
+.tl-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+/* — group bands --------------------------------------------------------- */
+
+.tl-bands {
+  position: relative;
+  height: 22px;
+  margin-left: var(--_tl-gutter);
+}
+
+.tl-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  overflow: hidden;
+  border: 1px solid var(--_tl-line);
+  border-radius: var(--_tl-radius);
+  background: var(--_tl-accent-soft);
+  color: var(--_tl-text-muted);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+/* — the bucket axis ---------------------------------------------------- */
+
+.tl-axis {
+  position: relative;
+  height: 20px;
+  margin-left: var(--_tl-gutter);
+  border-bottom: 1px solid var(--_tl-line);
+}
+
+.tl-axis-cell {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-left: 1px solid var(--_tl-line);
+  color: var(--_tl-text-muted);
+  font-family: var(--_tl-font-mono);
+  font-size: 0.8em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* — lanes -------------------------------------------------------------- */
+
+.tl-lanes {
+  position: relative;
+}
+
+.tl-lane {
+  display: grid;
+  grid-template-columns: var(--_tl-gutter) 1fr;
+  height: var(--_tl-lane-height);
+  border-top: 1px solid var(--_tl-line);
+}
+
+.tl-lane:last-child {
+  border-bottom: 1px solid var(--_tl-line);
+}
+
+.tl-lane[data-collapsed='true'] {
+  height: auto;
+  min-height: 34px;
+}
+
+.tl-head {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 var(--_tl-gap);
+  overflow: hidden;
+  border-right: 1px solid var(--_tl-line);
+  background: var(--_tl-bg);
+}
+
+.tl-head-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tl-head-rail {
+  flex: none;
+  width: 3px;
+  height: 1.1em;
+  border-radius: var(--_tl-radius);
+  background: var(--_tl-accent);
+}
+
+.tl-head-meta {
+  color: var(--_tl-text-muted);
+  font-family: var(--_tl-font-mono);
+  font-size: 0.8em;
+}
+
+.tl-head-warn {
+  color: var(--_tl-warn);
+}
+
+.tl-head-name {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tl-head-name:not(:disabled) {
+  cursor: text;
+}
+
+.tl-bed {
+  position: relative;
+  background: var(--_tl-bg-lane);
+}
+
+.tl-bed[data-drop='true'] {
+  background: var(--_tl-accent-soft);
+}
+
+.tl-bed-line {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--_tl-line);
+}
+
+/* — cards -------------------------------------------------------------- */
+
+.tl-card {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  width: var(--_tl-card-w);
+  max-width: var(--_tl-card-w);
+  padding: 6px 8px;
+  overflow: hidden;
+  border: 1px solid var(--_tl-line);
+  border-radius: var(--_tl-radius);
+  background: var(--_tl-bg-raised);
+  color: var(--_tl-text);
+  font: inherit;
+  text-align: left;
+  touch-action: none;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+}
+
+.tl-card[data-readonly='true'] {
+  cursor: pointer;
+}
+
+.tl-card:focus-visible {
+  outline: 2px solid var(--_tl-accent);
+  outline-offset: 1px;
+}
+
+.tl-card[data-selected='true'] {
+  z-index: 2;
+  border-color: var(--_tl-accent);
+}
+
+.tl-card[data-frame='true'] {
+  border-color: var(--_tl-good);
+}
+
+.tl-card[data-collision='true'] {
+  border-color: var(--_tl-warn);
+}
+
+.tl-card[data-dragging='true'] {
+  z-index: 4;
+  opacity: 0.9;
+  cursor: grabbing;
+}
+
+.tl-card-title {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tl-card-sub {
+  overflow: hidden;
+  color: var(--_tl-text-muted);
+  font-size: 0.85em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* — the tension overlay ------------------------------------------------- */
+
+.tl-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: var(--_tl-gutter);
+  /* An <svg> is a REPLACED element: with `height: auto` the inset box does not
+   * stretch it — the intrinsic ratio of `viewBox="0 0 1 1"` wins and it renders
+   * SQUARE, so on a wide board the curve is drawn far below the clip and only its
+   * tallest peak shows. Both sizes are stated explicitly for that reason; the
+   * width subtracts the gutter because a percentage resolves against the
+   * containing block and would otherwise ignore `left`. */
+  width: calc(100% - var(--_tl-gutter));
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.tl-curve {
+  fill: none;
+  stroke: var(--_tl-accent);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.tl-curve-base {
+  fill: none;
+  stroke: var(--_tl-good);
+  stroke-dasharray: 3 4;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.tl-curve-peak {
+  fill: var(--_tl-danger);
+}
+
+/* — the empty state ---------------------------------------------------- */
+
+.tl-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--_tl-gap) * 3);
+  border: 1px dashed var(--_tl-line);
+  border-radius: var(--_tl-radius);
+  background: var(--_tl-bg-lane);
+  color: var(--_tl-text-muted);
+  text-align: center;
+}
+
+.tl-empty-title {
+  color: var(--_tl-text);
+  font-weight: 600;
+}
+
+.tl-hint {
+  padding: 0 var(--_tl-gap);
+  color: var(--_tl-text-muted);
+  font-size: 0.85em;
+}

@@ -1,0 +1,90 @@
+/* The shell's own chrome. The timeline's palette comes from
+ * react-lane-timeline/adapters/shell.css; these are the page around it. */
+
+body {
+  margin: 0;
+  background: #0e1013;
+  color: #e8e6e1;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.sh-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #282c33;
+}
+
+.sh-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.sh-tab {
+  padding: 5px 12px;
+  border: 1px solid #282c33;
+  border-radius: 6px;
+  background: #17191e;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sh-tab[data-on="true"] {
+  border-color: #d9a441;
+  color: #d9a441;
+}
+
+.sh-tab:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.sh-main {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 18px;
+}
+
+.sh-h {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.sh-p {
+  max-width: 70ch;
+  margin: 0 0 12px;
+  color: #a4a7ae;
+}
+
+.sh-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sh-input {
+  min-width: 220px;
+  padding: 5px 10px;
+  border: 1px solid #282c33;
+  border-radius: 6px;
+  background: #17191e;
+  color: inherit;
+  font: inherit;
+}
+
+.sh-note {
+  margin: 8px 0 0;
+  color: #a4a7ae;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.sh-block {
+  min-width: 0;
+}

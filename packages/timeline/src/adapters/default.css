@@ -1,0 +1,48 @@
+/* The standalone shell (examples/demo) → timeline.
+ *
+ * The shell has no design system of its own; this file IS its palette — a calm
+ * dark board, plus the light values it switches to when the page carries
+ * data-tl-scheme="light".
+ *
+ * Custom properties only. No rule in this file paints anything. */
+:root {
+  --tl-bg: #121418;
+  --tl-bg-lane: #171a1f;
+  --tl-bg-raised: #20242b;
+
+  --tl-text: #e8e6e1;
+  --tl-text-muted: #a4a7ae;
+  --tl-line: #282c33;
+
+  --tl-accent: #d9a441;
+  --tl-accent-soft: #2e2716;
+  --tl-good: #4fb58a;
+  --tl-warn: #e2a13c;
+  --tl-danger: #e5575b;
+
+  --tl-radius: 6px;
+  --tl-gap: 12px;
+
+  --tl-font-ui: "Inter", system-ui, sans-serif;
+  --tl-font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --tl-text-size: 13px;
+
+  --tl-lane-height: 92px;
+  --tl-gutter: 176px;
+}
+
+:root[data-tl-scheme="light"] {
+  --tl-bg: #f7f6f3;
+  --tl-bg-lane: #efede8;
+  --tl-bg-raised: #ffffff;
+
+  --tl-text: #1b1c1f;
+  --tl-text-muted: #55585f;
+  --tl-line: #dedbd3;
+
+  --tl-accent: #9a6a12;
+  --tl-accent-soft: #f3e6c9;
+  --tl-good: #2f7f5f;
+  --tl-warn: #96660f;
+  --tl-danger: #b3363a;
+}
